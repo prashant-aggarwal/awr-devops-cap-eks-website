@@ -12,7 +12,7 @@ pipeline {
         stage('Checkout Code') {
             steps {
                 git branch: 'main',
-                    credentialsId: 'Github',
+                    credentialsId: 'Github-PAT',
                     url: 'https://github.com/prashant-aggarwal/awr-devops-cap-eks-website.git'
             }
         }
