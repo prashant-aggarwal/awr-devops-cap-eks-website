@@ -4,7 +4,9 @@ pipeline {
 	// Set the environment variables
     environment {
         PATH = "${env.HOME}/bin:${env.PATH}"
+		CLUSTER_NAME = 'pa-cap-eks-cluster-yVMH'
 		AWS_REGION = 'us-east-1'
+		ROLE_ARN = 'arn:aws:iam::021668988309:role/EKSServiceDeploymentRole'
     }
 
 	// Multistage pipeline
