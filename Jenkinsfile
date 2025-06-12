@@ -8,7 +8,7 @@ pipeline {
 
 	// Multistage pipeline
     stages {
-		// Stage 2 - Install AWS CLI
+		// Stage 1 - Install AWS CLI
         stage('Install AWS CLI') {
 			steps {
 				sh '''
