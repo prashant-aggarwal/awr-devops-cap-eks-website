@@ -4,6 +4,7 @@ pipeline {
 	// Set the environment variables
     environment {
         PATH = "${env.HOME}/bin:${env.PATH}"
+		AWS_REGION = 'us-east-1'
     }
 
 	// Multistage pipeline
