@@ -54,7 +54,7 @@ pipeline {
 						try {
 							sh '''
 								cd app
-								aws eks update-kubeconfig --name ${CLUSTER_NAME} --region ${AWS_REGION} --${ROLE_ARN}
+								aws eks update-kubeconfig --name ${CLUSTER_NAME} --region ${AWS_REGION} --role-arn ${ROLE_ARN}
 								kubectl apply -f web-service.yaml
 								kubectl apply -f web-deployment.yaml
 								kubectl get svc
