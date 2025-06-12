@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: events-web
+  labels:
+    app: events-web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: events-web
+      ver: v1.0
+  template:
+    metadata:
+      labels:
+        app: events-web
+        ver: v1.0
+    spec:
+      containers:
+        - name: events-web
+          image: 021668988309.dkr.ecr.us-east-1.amazonaws.com/events-website:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SERVER
+              value: "http://events-api-svc:8082"
+
