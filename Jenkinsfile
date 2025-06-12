@@ -16,6 +16,19 @@ pipeline {
                     url: 'https://github.com/prashant-aggarwal/awr-devops-cap-eks-website.git'
             }
         }
+		
+		// Stage 2 - Install AWS CLI
+        stage('Install AWS CLI') {
+			steps {
+				sh '''
+					curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+					unzip awscliv2.zip
+					./aws/install
+					export PATH=$HOME/bin:$PATH
+					aws --version
+				'''
+			}
+		}
 
 		// Stage 2 - Install kubectl
         stage('Install kubectl') {
