@@ -21,7 +21,7 @@ pipeline {
 						unzip -q awscliv2.zip
 						./aws/install -i $HOME/aws-cli -b $HOME/bin
 					  else
-						echo "AWS CLI already installed: $(aws --version)"
+						echo "AWS CLI is already installed: $(aws --version)"
 					  fi
 				'''
 			}
