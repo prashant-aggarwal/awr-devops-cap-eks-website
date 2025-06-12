@@ -8,15 +8,6 @@ pipeline {
 
 	// Multistage pipeline
     stages {
-		// Stage 1 - Checkout code repository
-        stage('Checkout Code') {
-            steps {
-                git branch: 'main',
-                    credentialsId: 'Github-PAT',
-                    url: 'https://github.com/prashant-aggarwal/awr-devops-cap-eks-website.git'
-            }
-        }
-		
 		// Stage 2 - Install AWS CLI
         stage('Install AWS CLI') {
 			steps {
