@@ -23,7 +23,7 @@ pipeline {
 				sh '''
 					curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
 					unzip awscliv2.zip
-					./aws/install
+					./aws/install -i $HOME/aws-cli -b $HOME/bin
 					export PATH=$HOME/bin:$PATH
 					aws --version
 				'''
@@ -46,7 +46,7 @@ pipeline {
         }
 
 		// Stage 3 - Deploy web application on EKS Cluster
-        stage('Destroy Web Application') {
+        stage('Deploy Web Application') {
             steps {
 				script {
 				// Install AWS Steps plugin to make this work
