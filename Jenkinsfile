@@ -21,11 +21,14 @@ pipeline {
         stage('Install AWS CLI') {
 			steps {
 				sh '''
-					curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-					unzip awscliv2.zip
-					./aws/install -i $HOME/aws-cli -b $HOME/bin
-					export PATH=$HOME/bin:$PATH
-					aws --version
+					if ! command -v aws >/dev/null 2>&1; then
+						echo "AWS CLI not found. Installing..."
+						curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+						unzip -q awscliv2.zip
+						./aws/install -i $HOME/aws-cli -b $HOME/bin
+					  else
+						echo "AWS CLI already installed: $(aws --version)"
+					  fi
 				'''
 			}
 		}
