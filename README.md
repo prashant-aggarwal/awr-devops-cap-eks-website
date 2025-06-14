@@ -51,7 +51,8 @@
 1. Ensure that the EKS cluster is destroyed using either of the pipelines associated with [awr-devops-cap-eks-destroy-terraform](https://github.com/prashant-aggarwal/awr-devops-cap-eks-destroy-terraform) or [awr-devops-cap-eks-destroy-eksctl](https://github.com/prashant-aggarwal/awr-devops-cap-eks-destroy-eksctl) repositories.
 2. Verify that the resources are cleaned up through
    - Job console output
-   - AWS management console 
+   - AWS management console
+3. Stop the machine which is hosting Jenkins server. 
 
 
 
