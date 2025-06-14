@@ -47,6 +47,12 @@
 8. Check the Console Output associated with the lastest job for verification.
 9. Verify the Pods in EKS cluster in the AWS management console in the selected region.
 
+#### Cleanup resources:
+1. Ensure that the EKS cluster is destroyed using either of the pipelines associated with [awr-devops-cap-eks-destroy-terraform](https://github.com/prashant-aggarwal/awr-devops-cap-eks-destroy-terraform) or [awr-devops-cap-eks-destroy-eksctl](https://github.com/prashant-aggarwal/awr-devops-cap-eks-destroy-eksctl) repositories.
+2. Verify that the resources are cleaned up through
+   - Job console output
+   - AWS management console 
+
 
 
 
