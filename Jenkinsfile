@@ -64,9 +64,13 @@ pipeline {
 						try {
 							sh '''
 								cd deploy
+								// Use envsubst to replace placeholders
+								export DOCKER_IMAGE=${DOCKER_IMAGE}
+            					export TAG_VERSION=${TAG_VERSION}
+								envsubst < web-deployment.yaml > web-deployment-rendered.yaml
 								aws eks update-kubeconfig --name ${CLUSTER_NAME} --region ${AWS_REGION} --role-arn ${ROLE_ARN}
 								kubectl apply -f web-service.yaml
-								kubectl apply -f web-deployment.yaml
+								kubectl apply -f web-deployment-rendered.yaml
 								# kubectl apply -f web-deployment.yaml
 								# kubectl delete -f web-deployment-v2.yaml
 								kubectl get svc

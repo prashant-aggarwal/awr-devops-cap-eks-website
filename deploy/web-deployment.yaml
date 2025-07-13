@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: events-web
-          image: coolduck84/awr-devops-frontend-service:latest
+          image: ${DOCKER_IMAGE}:${TAG_VERSION}
           ports:
             - containerPort: 8080
           env:
