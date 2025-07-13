@@ -8,7 +8,19 @@ pipeline {
 
 	// Multistage pipeline
     stages {
-		// Stage 1 - Install AWS CLI
+		// Stage 1 - Build and Push Docker Image to DockerHub
+		stage('Build and Push to DockerHub') {
+            steps {
+                script {
+                    docker.withRegistry('https://index.docker.io/v1/', 'DockerHub') {
+                        def customImage = docker.build("${DOCKER_IMAGE}:${DOCKER_TAG}")
+                        customImage.push()
+                    }
+                }
+            }
+        }
+
+		// Stage 2 - Install AWS CLI
         stage('Install AWS CLI') {
 			steps {
 				sh '''
@@ -21,13 +33,11 @@ pipeline {
 					else
 						echo "AWS CLI is already installed: $(aws --version)"
 					fi
-
-					aws sts get-caller-identity
 				'''
 			}
 		}
 
-		// Stage 2 - Install kubectl
+		// Stage 3 - Install kubectl
         stage('Install kubectl') {
             steps {
                 sh '''
@@ -45,7 +55,7 @@ pipeline {
             }
         }
 
-		// Stage 3 - Deploy web application on EKS Cluster
+		// Stage 4 - Deploy web application on EKS Cluster
         stage('Deploy Web Application') {
             steps {
 				script {
