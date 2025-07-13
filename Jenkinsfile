@@ -63,7 +63,7 @@ pipeline {
 				withAWS(region: "${AWS_REGION}", credentials: 'AWS') {
 						try {
 							sh '''
-								cd app
+								cd deploy
 								aws eks update-kubeconfig --name ${CLUSTER_NAME} --region ${AWS_REGION} --role-arn ${ROLE_ARN}
 								kubectl apply -f web-service.yaml
 								kubectl apply -f web-deployment.yaml
