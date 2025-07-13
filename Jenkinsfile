@@ -64,7 +64,7 @@ pipeline {
 						try {
 							sh '''
 								cd deploy
-								// Use envsubst to replace placeholders
+								# Use envsubst to replace placeholders
 								export DOCKER_IMAGE=${DOCKER_IMAGE}
             					export TAG_VERSION=${TAG_VERSION}
 								envsubst < web-deployment.yaml > web-deployment-rendered.yaml
