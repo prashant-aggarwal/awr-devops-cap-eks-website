@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: events-web
-          image: 021668988309.dkr.ecr.us-east-1.amazonaws.com/events-website:latest
+          image: coolduck84/awr-devops-frontend-service:latest
           ports:
             - containerPort: 8080
           env:
