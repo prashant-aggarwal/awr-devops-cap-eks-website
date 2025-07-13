@@ -8,30 +8,6 @@ pipeline {
 
 	// Multistage pipeline
     stages {
-
-		// Stage 1 - Install envsubst
-		stage('Install envsubst') {
-			steps {
-				sh '''
-				if ! command -v envsubst >/dev/null 2>&1; then
-					echo "envsubst not found. Installing..."
-					if [ -f /etc/alpine-release ]; then
-						echo "Detected Alpine Linux"
-						apk add --no-cache gettext
-					elif [ -f /etc/debian_version ]; then
-						echo "Detected Debian/Ubuntu"
-						sudo apt-get update && sudo apt-get install -y gettext
-					else
-						echo "Unsupported OS. Please install envsubst manually."
-						exit 1
-					fi
-				else
-					echo "envsubst is already installed: $(envsubst --version | head -n 1)"
-				fi
-				'''
-			}
-		}
-`
 		// Stage 1 - Build and Push Docker Image to DockerHub
 		stage('Build and Push to DockerHub') {
             steps {
@@ -87,9 +63,8 @@ pipeline {
 							sh '''
 								cd deploy
 								# Use envsubst to replace placeholders
-								export DOCKER_IMAGE=${DOCKER_IMAGE}
-            					export TAG_VERSION=${TAG_VERSION}
-								envsubst < web-deployment.yaml > web-deployment-rendered.yaml
+								sed "s|\\${DOCKER_IMAGE}|${DOCKER_IMAGE}|g" web-deployment.yaml | \
+  								sed "s|\\${TAG_VERSION}|${TAG_VERSION}|g" > web-deployment-rendered.yaml
 								aws eks update-kubeconfig --name ${CLUSTER_NAME} --region ${AWS_REGION} --role-arn ${ROLE_ARN}
 								kubectl apply -f web-service.yaml
 								kubectl apply -f web-deployment-rendered.yaml
