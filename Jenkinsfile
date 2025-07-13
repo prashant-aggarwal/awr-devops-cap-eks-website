@@ -8,6 +8,30 @@ pipeline {
 
 	// Multistage pipeline
     stages {
+
+		// Stage 1 - Install envsubst
+		stage('Install envsubst') {
+			steps {
+				sh '''
+				if ! command -v envsubst >/dev/null 2>&1; then
+					echo "envsubst not found. Installing..."
+					if [ -f /etc/alpine-release ]; then
+						echo "Detected Alpine Linux"
+						apk add --no-cache gettext
+					elif [ -f /etc/debian_version ]; then
+						echo "Detected Debian/Ubuntu"
+						sudo apt-get update && sudo apt-get install -y gettext
+					else
+						echo "Unsupported OS. Please install envsubst manually."
+						exit 1
+					fi
+				else
+					echo "envsubst is already installed: $(envsubst --version | head -n 1)"
+				fi
+				'''
+			}
+		}
+`
 		// Stage 1 - Build and Push Docker Image to DockerHub
 		stage('Build and Push to DockerHub') {
             steps {
@@ -29,7 +53,6 @@ pipeline {
 						curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
 						unzip -q awscliv2.zip
 						./aws/install -i $HOME/aws-cli -b $HOME/bin
-						export PATH=$HOME/bin:$PATH
 					else
 						echo "AWS CLI is already installed: $(aws --version)"
 					fi
@@ -47,7 +70,6 @@ pipeline {
 						chmod +x ./kubectl
 						mkdir -p $HOME/bin
 						cp ./kubectl $HOME/bin/kubectl
-						export PATH=$HOME/bin:$PATH
 					else
 						echo "kubectl is already installed: $(kubectl version --client --short)"
 					fi
