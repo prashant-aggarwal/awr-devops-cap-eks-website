@@ -9,16 +9,41 @@ pipeline {
 	// Multistage pipeline
     stages {
 		// Stage 1 - Build and Push Docker Image to DockerHub
-		stage('Build and Push to DockerHub') {
-            steps {
-                script {
-                    docker.withRegistry('https://index.docker.io/v1/', 'DockerHub') {
-                        def customImage = docker.build("${DOCKER_IMAGE}:${DOCKER_TAG}")
-                        customImage.push()
-                    }
-                }
-            }
-        }
+		// stage('Build and Push to DockerHub') {
+        //     steps {
+        //         script {
+        //             docker.withRegistry('https://index.docker.io/v1/', 'DockerHub') {
+        //                 def customImage = docker.build("${DOCKER_IMAGE}:${DOCKER_TAG}")
+        //                 customImage.push()
+        //             }
+        //         }
+        //     }
+        // }
+
+		stages {
+			stage('Build & Push to ECR') {
+				steps {
+					script {
+						withAWS(region: "${AWS_REGION}", credentials: 'AWS') {
+							sh '''
+								echo "Logging into Amazon ECR..."
+								aws ecr get-login-password --region ${AWS_REGION} | \
+								docker login --username DockerHub --password-stdin ${ECR_REGISTRY}
+
+								echo "Building Docker image..."
+								docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .
+
+								echo "🏷️ Tagging image for ECR..."
+								docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${ECR_REPO}:${DOCKER_TAG}
+
+								echo "📤 Pushing image to ECR..."
+								docker push ${ECR_REPO}:${DOCKER_TAG}
+							'''
+						}
+					}
+				}
+			}
+		}
 
 		// Stage 2 - Install AWS CLI
         stage('Install AWS CLI') {
@@ -63,7 +88,7 @@ pipeline {
 							sh '''
 								cd deploy
 								# Use envsubst to replace placeholders
-								sed "s|\\${DOCKER_IMAGE}|${DOCKER_IMAGE}|g" ${WEB_DEPLOY}.yaml | \
+								sed "s|\\${DOCKER_IMAGE}|${ECR_REPO}|g" ${WEB_DEPLOY}.yaml | \
   								sed "s|\\${DOCKER_TAG}|${DOCKER_TAG}|g" > ${WEB_DEPLOY}-rendered.yaml
 								aws eks update-kubeconfig --name ${CLUSTER_NAME} --region ${AWS_REGION} --role-arn ${ROLE_ARN}
 								kubectl apply -f web-service.yaml
