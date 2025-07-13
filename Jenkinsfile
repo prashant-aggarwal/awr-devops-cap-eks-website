@@ -13,7 +13,7 @@ pipeline {
         //     steps {
         //         script {
         //             docker.withRegistry('https://index.docker.io/v1/', 'DockerHub') {
-        //                 def customImage = docker.build("${ECR_REPO}:${IMAGE_TAG}")
+        //                 def customImage = docker.build("${IMAGE_REPO}:${IMAGE_TAG}")
         //                 customImage.push()
         //             }
         //         }
@@ -61,16 +61,16 @@ pipeline {
 						sh '''
 							echo "Logging into Amazon ECR..."
 							aws ecr get-login-password --region ${AWS_REGION} | \
-							docker login --username AWS --password-stdin ${ECR_REGISTRY}
+							docker login --username AWS --password-stdin ${IMAGE_REGISTRY}
 
 							echo "Building Docker image..."
 							docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
 
 							echo "🏷️ Tagging image for ECR..."
-							docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${ECR_REPO}:${IMAGE_TAG}
+							docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${IMAGE_REPO}:${IMAGE_TAG}
 
 							echo "📤 Pushing image to ECR..."
-							docker push ${ECR_REPO}:${IMAGE_TAG}
+							docker push ${IMAGE_REPO}:${IMAGE_TAG}
 						'''
 					}
 				}
@@ -87,7 +87,7 @@ pipeline {
 							sh '''
 								cd deploy
 								# Use envsubst to replace placeholders
-								sed "s|\\${IMAGE_NAME}|${ECR_REPO}|g" ${WEB_DEPLOY}.yaml | \
+								sed "s|\\${IMAGE_NAME}|${IMAGE_REPO}|g" ${WEB_DEPLOY}.yaml | \
   								sed "s|\\${IMAGE_TAG}|${IMAGE_TAG}|g" > ${WEB_DEPLOY}-rendered.yaml
 								aws eks update-kubeconfig --name ${CLUSTER_NAME} --region ${AWS_REGION} --role-arn ${ROLE_ARN}
 								kubectl apply -f web-service.yaml
