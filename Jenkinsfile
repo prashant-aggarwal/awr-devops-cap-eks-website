@@ -20,32 +20,7 @@ pipeline {
         //     }
         // }
 
-		stages {
-			stage('Build & Push to ECR') {
-				steps {
-					script {
-						withAWS(region: "${AWS_REGION}", credentials: 'AWS') {
-							sh '''
-								echo "Logging into Amazon ECR..."
-								aws ecr get-login-password --region ${AWS_REGION} | \
-								docker login --username DockerHub --password-stdin ${ECR_REGISTRY}
-
-								echo "Building Docker image..."
-								docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .
-
-								echo "🏷️ Tagging image for ECR..."
-								docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${ECR_REPO}:${DOCKER_TAG}
-
-								echo "📤 Pushing image to ECR..."
-								docker push ${ECR_REPO}:${DOCKER_TAG}
-							'''
-						}
-					}
-				}
-			}
-		}
-
-		// Stage 2 - Install AWS CLI
+		// Stage 1 - Install AWS CLI
         stage('Install AWS CLI') {
 			steps {
 				sh '''
@@ -61,7 +36,7 @@ pipeline {
 			}
 		}
 
-		// Stage 3 - Install kubectl
+		// Stage 2 - Install kubectl
         stage('Install kubectl') {
             steps {
                 sh '''
@@ -77,6 +52,30 @@ pipeline {
                 '''
             }
         }
+
+		// Stage 3 - Build and Push Docker Image to ECR
+		stage('Build & Push to ECR') {
+			steps {
+				script {
+					withAWS(region: "${AWS_REGION}", credentials: 'AWS') {
+						sh '''
+							echo "Logging into Amazon ECR..."
+							aws ecr get-login-password --region ${AWS_REGION} | \
+							docker login --username DockerHub --password-stdin ${ECR_REGISTRY}
+
+							echo "Building Docker image..."
+							docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .
+
+							echo "🏷️ Tagging image for ECR..."
+							docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${ECR_REPO}:${DOCKER_TAG}
+
+							echo "📤 Pushing image to ECR..."
+							docker push ${ECR_REPO}:${DOCKER_TAG}
+						'''
+					}
+				}
+			}
+		}
 
 		// Stage 4 - Deploy web application on EKS Cluster
         stage('Deploy Web Application') {
