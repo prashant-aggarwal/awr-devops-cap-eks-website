@@ -40,6 +40,7 @@ pipeline {
 						export PATH=$HOME/bin:$PATH
 					else
 						echo "kubectl is already installed: $(kubectl version --client --short)"
+					fi
                 '''
             }
         }
