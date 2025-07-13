@@ -64,7 +64,7 @@ pipeline {
 								cd deploy
 								# Use envsubst to replace placeholders
 								sed "s|\\${DOCKER_IMAGE}|${DOCKER_IMAGE}|g" web-deployment.yaml | \
-  								sed "s|\\${TAG_VERSION}|${TAG_VERSION}|g" > web-deployment-rendered.yaml
+  								sed "s|\\${DOCKER_TAG}|${DOCKER_TAG}|g" > web-deployment-rendered.yaml
 								aws eks update-kubeconfig --name ${CLUSTER_NAME} --region ${AWS_REGION} --role-arn ${ROLE_ARN}
 								kubectl apply -f web-service.yaml
 								kubectl apply -f web-deployment-rendered.yaml
