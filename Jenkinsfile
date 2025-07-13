@@ -61,7 +61,7 @@ pipeline {
 						sh '''
 							echo "Logging into Amazon ECR..."
 							aws ecr get-login-password --region ${AWS_REGION} | \
-							docker login --username DockerHub --password-stdin ${ECR_REGISTRY}
+							docker login --username AWS --password-stdin ${ECR_REGISTRY}
 
 							echo "Building Docker image..."
 							docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .
