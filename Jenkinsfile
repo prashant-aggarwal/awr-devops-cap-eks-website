@@ -82,6 +82,26 @@ pipeline {
 								kubectl apply -f ${WEB_DEPLOY}-rendered.yaml
 								# kubectl apply -f web-deployment.yaml
 								# kubectl delete -f web-deployment-v2.yaml
+								
+								# Wait until EXTERNAL-IP is assigned to the LoadBalancer service
+								echo "Waiting for EXTERNAL-IP of 'events-web-svc'..."
+
+								for i in {1..60}; do
+								EXTERNAL_IP=$(kubectl get svc events-web-svc -o jsonpath="{.status.loadBalancer.ingress[0].hostname}")
+								if [[ -z "$EXTERNAL_IP" ]]; then
+									echo "Still waiting... ($i/60)"
+									sleep 10
+								else
+									echo "EXTERNAL-IP is available: $EXTERNAL_IP"
+									break
+								fi
+								done
+
+								if [[ -z "$EXTERNAL_IP" ]]; then
+								echo "Timed out waiting for EXTERNAL-IP. Exiting with error."
+								exit 1
+								fi
+
 								kubectl get svc
 								kubectl get pods
 							'''
