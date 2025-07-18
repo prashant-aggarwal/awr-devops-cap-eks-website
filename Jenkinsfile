@@ -85,7 +85,7 @@ pipeline {
 								
 								echo "Waiting for EXTERNAL-IP of 'events-web-svc'..."
 
-								for i in $(seq 1 60);
+								for i in $(seq 1 60); do
 									HOSTNAME=$(kubectl get svc events-web-svc -o jsonpath="{.status.loadBalancer.ingress[0].hostname}" 2>/dev/null)
 									if [ -n "$HOSTNAME" ]; then
 										EXTERNAL_IP="$HOSTNAME"
