@@ -87,15 +87,10 @@ pipeline {
 
 								for i in {1..60}; do
 								HOSTNAME=$(kubectl get svc events-web-svc -o jsonpath="{.status.loadBalancer.ingress[0].hostname}" 2>/dev/null)
-								IP=$(kubectl get svc events-web-svc -o jsonpath="{.status.loadBalancer.ingress[0].ip}" 2>/dev/null)
-
-								if [[ -n "$HOSTNAME" ]]; then
+								
+								if [ -n "$HOSTNAME" ]; then
 									EXTERNAL_IP="$HOSTNAME"
 									echo "EXTERNAL-IP is available (hostname): $EXTERNAL_IP"
-									break
-								elif [[ -n "$IP" ]]; then
-									EXTERNAL_IP="$IP"
-									echo "EXTERNAL-IP is available (IP): $EXTERNAL_IP"
 									break
 								else
 									echo "Still waiting... ($i/60)"
@@ -103,9 +98,9 @@ pipeline {
 								fi
 								done
 
-								if [[ -z "$EXTERNAL_IP" ]]; then
-								echo "Timed out waiting for EXTERNAL-IP. Exiting with error."
-								exit 1
+								if [ -z "$EXTERNAL_IP" ]; then
+									echo "Timed out waiting for EXTERNAL-IP. Exiting with error."
+									exit 1
 								fi
 
 
