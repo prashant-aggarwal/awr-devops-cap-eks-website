@@ -4,6 +4,7 @@ pipeline {
 	// Set the environment variables
     environment {
         PATH = "${env.HOME}/bin:${env.PATH}"
+		env.IMAGE_REPO = "${env.IMAGE_REGISTRY}/${env.IMAGE_NAME}"
 	}
 
 	// Multistage pipeline
@@ -12,24 +13,6 @@ pipeline {
 		stage('Setup variables') {
             steps {
                 script {
-                    def DEFAULTS = [
-                        AWS_REGION:   'us-east-1',
-                        CLUSTER_NAME: 'cap-eks-cluster',
-                        ROLE_ARN:     'arn:aws:iam::021668988309:role/EKSServiceDeploymentRole',
-                        IMAGE_NAME:   'events-website',
-                        IMAGE_TAG:    "${env.BUILD_NUMBER}",
-                        IMAGE_REGISTRY: '021668988309.dkr.ecr.us-east-1.amazonaws.com',
-                        WEB_DEPLOY:   'web-deployment'
-                    ]
-
-                    DEFAULTS.each { key, val ->
-                        if (!env[key]) {
-                            env[key] = val
-                        }
-                    }
-
-                    env.IMAGE_REPO = env.IMAGE_REPO ?: "${env.IMAGE_REGISTRY}/${env.IMAGE_NAME}"
-
                     echo "Using config:"
                     echo "  AWS_REGION:   ${env.AWS_REGION}"
                     echo "  CLUSTER_NAME: ${env.CLUSTER_NAME}"
