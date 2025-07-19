@@ -93,14 +93,18 @@ pipeline {
 							sh '''
 								cd deploy
 								# Use envsubst to replace placeholders
-								sed "s|\\${IMAGE_NAME}|${IMAGE_REPO}|g" ${WEB_DEPLOY}-v2.yaml | \
+								sed "s|\\${IMAGE_NAME}|${IMAGE_REPO}|g" ${WEB_DEPLOY}.yaml | \
   								sed "s|\\${IMAGE_TAG}|${IMAGE_TAG}|g" > ${WEB_DEPLOY}-rendered.yaml
 								aws eks update-kubeconfig --name ${CLUSTER_NAME} --region ${AWS_REGION} --role-arn ${ROLE_ARN}
 								kubectl apply -f web-service.yaml
 								kubectl apply -f ${WEB_DEPLOY}-rendered.yaml
 								
-								# kubectl delete -f web-deployment-v2.yaml
-								
+								# Remove old deployment if it exists
+								if kubectl get deployment events-web-deployment-v2 >/dev/null 2>&1; then
+									echo "Removing old deployment 'events-web-deployment-v2'..."
+									kubectl delete -f deployment events-web-deployment-v2
+								fi
+																
 								echo "Waiting for EXTERNAL-IP of 'events-web-svc'..."
 
 								for i in $(seq 1 60); do
