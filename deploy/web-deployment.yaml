@@ -23,5 +23,5 @@ spec:
             - containerPort: 8080
           env:
             - name: SERVER
-              value: "${API_LB_URL}:8082"
+              value: "http://${API_LB_URL}:8082"
 
