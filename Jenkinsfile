@@ -100,9 +100,9 @@ pipeline {
 								kubectl apply -f ${WEB_DEPLOY}-rendered.yaml
 								
 								# Remove old deployment if it exists
-								if kubectl get deployment events-web-deployment-v2 >/dev/null 2>&1; then
-									echo "Removing old deployment 'events-web-deployment-v2'..."
-									kubectl delete -f deployment events-web-deployment-v2
+								if kubectl get deployment events-web-2.0 >/dev/null 2>&1; then
+									echo "Removing old deployment 'web-deployment-v2'..."
+									kubectl delete -f web-deployment-v2.yaml
 								fi
 																
 								echo "Waiting for EXTERNAL-IP of 'events-web-svc'..."
