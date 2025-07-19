@@ -23,5 +23,5 @@ spec:
             - containerPort: 8080
           env:
             - name: SERVER
-              value: "http://events-api-svc:8082"
+              value: "http://internal-aae5fdd2acd2f4060b46d6822e3acdec-1352825073.us-east-1.elb.amazonaws.com:8082"
 
