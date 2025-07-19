@@ -142,6 +142,8 @@ pipeline {
 									exit 1
 								fi
 
+								kubectl apply -f web-hpa.yaml
+								kubectl get hpa
 
 								kubectl get svc
 								kubectl get pods
