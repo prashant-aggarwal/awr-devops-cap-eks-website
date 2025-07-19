@@ -9,8 +9,8 @@ pipeline {
 
 	// Multistage pipeline
     stages {
-		// Stage 0 - Setup variables
-		stage('Setup variables') {
+		// Stage 0 - Display environment variables
+		stage('Display environment variables') {
             steps {
                 script {
                     echo "Using config:"
