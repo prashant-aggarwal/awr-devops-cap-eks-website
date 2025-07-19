@@ -4,7 +4,7 @@ pipeline {
 	// Set the environment variables
     environment {
         PATH = "${env.HOME}/bin:${env.PATH}"
-		IMAGE_REPO = "${env.IMAGE_REGISTRY}/${env.IMAGE_NAME}"
+		IMAGE_REPO = "${env.IMAGE_REGISTRY}/${env.IMAGE_NAME_WEB}"
 	}
 
 	// Multistage pipeline
@@ -17,7 +17,7 @@ pipeline {
                     echo "  AWS_REGION:   ${env.AWS_REGION}"
                     echo "  CLUSTER_NAME: ${env.CLUSTER_NAME}"
                     echo "  ROLE_ARN:     ${env.ROLE_ARN}"
-                    echo "  IMAGE_NAME:   ${env.IMAGE_NAME}"
+                    echo "  IMAGE_NAME_WEB:   ${env.IMAGE_NAME_WEB}"
                     echo "  IMAGE_TAG:    ${env.IMAGE_TAG}"
                     echo "  IMAGE_REGISTRY: ${env.IMAGE_REGISTRY}"
                     echo "  IMAGE_REPO:   ${env.IMAGE_REPO}"
@@ -70,10 +70,10 @@ pipeline {
 							docker login --username AWS --password-stdin ${IMAGE_REGISTRY}
 
 							echo "Building Docker image..."
-							docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
+							docker build -t ${IMAGE_NAME_WEB}:${IMAGE_TAG} .
 
 							echo "Tagging image for ECR..."
-							docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${IMAGE_REPO}:${IMAGE_TAG}
+							docker tag ${IMAGE_NAME_WEB}:${IMAGE_TAG} ${IMAGE_REPO}:${IMAGE_TAG}
 
 							echo "Pushing image to ECR..."
 							docker push ${IMAGE_REPO}:${IMAGE_TAG}
@@ -93,7 +93,7 @@ pipeline {
 							sh '''
 								cd deploy
 								# Use envsubst to replace placeholders
-								sed "s|\\${IMAGE_NAME}|${IMAGE_REPO}|g" ${WEB_DEPLOY}.yaml | \
+								sed "s|\\${IMAGE_NAME_WEB}|${IMAGE_REPO}|g" ${WEB_DEPLOY}.yaml | \
   								sed "s|\\${IMAGE_TAG}|${IMAGE_TAG}|g" > ${WEB_DEPLOY}-rendered.yaml
 								aws eks update-kubeconfig --name ${CLUSTER_NAME} --region ${AWS_REGION} --role-arn ${ROLE_ARN}
 								kubectl apply -f web-service.yaml
