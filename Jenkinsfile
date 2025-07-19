@@ -12,15 +12,23 @@ pipeline {
 		stage('Setup variables') {
             steps {
                 script {
-                    // Safe variable defaults (use Jenkins env if available, else fallback)
-					AWS_REGION = env.AWS_REGION ?: 'us-east-1'
-					CLUSTER_NAME = env.CLUSTER_NAME ?: 'cap-eks-cluster'
-					ROLE_ARN = env.ROLE_ARN ?: 'arn:aws:iam::021668988309:role/EKSServiceDeploymentRole'
-					IMAGE_NAME = env.IMAGE_NAME ?: 'events-website'
-					IMAGE_TAG = env.IMAGE_TAG ?: "${env.BUILD_NUMBER}"
-					IMAGE_REGISTRY = env.IMAGE_REGISTRY ?: '021668988309.dkr.ecr.us-east-1.amazonaws.com'
-					IMAGE_REPO = env.IMAGE_REPO ?: "${env.IMAGE_REGISTRY}/${env.IMAGE_NAME}"
-					WEB_DEPLOY = env.WEB_DEPLOY ?: 'web-deployment'
+                    def DEFAULTS = [
+                        AWS_REGION:   'us-east-1',
+                        CLUSTER_NAME: 'cap-eks-cluster',
+                        ROLE_ARN:     'arn:aws:iam::021668988309:role/EKSServiceDeploymentRole',
+                        IMAGE_NAME:   'events-website',
+                        IMAGE_TAG:    "${env.BUILD_NUMBER}",
+                        IMAGE_REGISTRY: '021668988309.dkr.ecr.us-east-1.amazonaws.com',
+                        WEB_DEPLOY:   'web-deployment'
+                    ]
+
+                    DEFAULTS.each { key, val ->
+                        if (!env[key]) {
+                            env[key] = val
+                        }
+                    }
+
+                    env.IMAGE_REPO = env.IMAGE_REPO ?: "${env.IMAGE_REGISTRY}/${env.IMAGE_NAME}"
 
                     echo "Using config:"
                     echo "  AWS_REGION:   ${env.AWS_REGION}"
