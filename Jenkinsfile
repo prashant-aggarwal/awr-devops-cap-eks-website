@@ -10,30 +10,38 @@ pipeline {
     stages {
 		// Stage 0 - Setup variables
 		stage('Setup variables') {
-			steps {
-				script {
-					// Safe variable defaults (use Jenkins env if available, else fallback)
-					AWS_REGION = env.AWS_REGION ?: 'us-east-1'
-					CLUSTER_NAME = env.CLUSTER_NAME ?: 'cap-eks-cluster'
-					ROLE_ARN = env.ROLE_ARN ?: 'arn:aws:iam::021668988309:role/EKSServiceDeploymentRole'
-					IMAGE_NAME = env.IMAGE_NAME ?: 'events-website'
-					IMAGE_TAG = env.IMAGE_TAG ?: ${env.BUILD_NUMBER}
-					IMAGE_REGISTRY = env.IMAGE_REGISTRY ?: '021668988309.dkr.ecr.us-east-1.amazonaws.com'
-					IMAGE_REPO = env.IMAGE_REPO ?: "${env.IMAGE_REGISTRY}/${env.IMAGE_NAME}"
-					WEB_DEPLOY = env.WEB_DEPLOY ?: 'web-deployment'
+            steps {
+                script {
+                    def DEFAULTS = [
+                        AWS_REGION:   'us-east-1',
+                        CLUSTER_NAME: 'cap-eks-cluster',
+                        ROLE_ARN:     'arn:aws:iam::021668988309:role/EKSServiceDeploymentRole',
+                        IMAGE_NAME:   'events-website',
+                        IMAGE_TAG:    "${env.BUILD_NUMBER}",
+                        IMAGE_REGISTRY: '021668988309.dkr.ecr.us-east-1.amazonaws.com',
+                        WEB_DEPLOY:   'web-deployment'
+                    ]
 
-					echo "Using config:"
-					echo "AWS_REGION: ${env.AWS_REGION}"
-					echo "CLUSTER_NAME: ${env.CLUSTER_NAME}"
-					echo "ROLE_ARN: ${env.ROLE_ARN}"
-					echo "IMAGE_NAME: ${env.IMAGE_NAME}"
-					echo "IMAGE_TAG: ${env.IMAGE_TAG}"
-					echo "IMAGE_REGISTRY: ${env.IMAGE_REGISTRY}"
-					echo "IMAGE_REPO: ${env.IMAGE_REPO}"
-					echo "WEB_DEPLOY: ${env.WEB_DEPLOY}"
-				}
-			}
-		}
+                    DEFAULTS.each { key, val ->
+                        if (!env[key]) {
+                            env[key] = val
+                        }
+                    }
+
+                    env.IMAGE_REPO = env.IMAGE_REPO ?: "${env.IMAGE_REGISTRY}/${env.IMAGE_NAME}"
+
+                    echo "Using config:"
+                    echo "  AWS_REGION:   ${env.AWS_REGION}"
+                    echo "  CLUSTER_NAME: ${env.CLUSTER_NAME}"
+                    echo "  ROLE_ARN:     ${env.ROLE_ARN}"
+                    echo "  IMAGE_NAME:   ${env.IMAGE_NAME}"
+                    echo "  IMAGE_TAG:    ${env.IMAGE_TAG}"
+                    echo "  IMAGE_REGISTRY: ${env.IMAGE_REGISTRY}"
+                    echo "  IMAGE_REPO:   ${env.IMAGE_REPO}"
+                    echo "  WEB_DEPLOY:   ${env.WEB_DEPLOY}"
+                }
+            }
+        }
 
 		// Stage 1 - Install AWS CLI
         stage('Install AWS CLI') {
@@ -81,10 +89,10 @@ pipeline {
 							echo "Building Docker image..."
 							docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
 
-							echo "🏷️ Tagging image for ECR..."
+							echo "Tagging image for ECR..."
 							docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${IMAGE_REPO}:${IMAGE_TAG}
 
-							echo "📤 Pushing image to ECR..."
+							echo "Pushing image to ECR..."
 							docker push ${IMAGE_REPO}:${IMAGE_TAG}
 						'''
 					}
