@@ -4,10 +4,32 @@ pipeline {
 	// Set the environment variables
     environment {
         PATH = "${env.HOME}/bin:${env.PATH}"
-    }
+		AWS_REGION = env.AWS_REGION ?: 'us-east-1'
+        CLUSTER_NAME = env.CLUSTER_NAME ?: 'cap-eks-cluster'
+        ROLE_ARN = env.ROLE_ARN ?: 'arn:aws:iam::021668988309:role/EKSServiceDeploymentRole'
+		IMAGE_NAME = env.IMAGE_NAME ?: 'events-website'
+		IMAGE_TAG = env.IMAGE_TAG ?: ${env.BUILD_NUMBER}
+		IMAGE_REGISTRY = env.IMAGE_REGISTRY ?: '021668988309.dkr.ecr.us-east-1.amazonaws.com'
+		IMAGE_REPO = env.IMAGE_REPO ?: "${env.IMAGE_REGISTRY}/${env.IMAGE_NAME}"
+    	WEB_DEPLOY = env.WEB_DEPLOY ?: 'web-deployment'
+	}
 
 	// Multistage pipeline
     stages {
+		// Stage 0 - Display environment variables
+		stage('Display environment variables') {
+			steps {
+				echo "AWS_REGION: ${env.AWS_REGION}"
+				echo "CLUSTER_NAME: ${env.CLUSTER_NAME}"
+				echo "ROLE_ARN: ${env.ROLE_ARN}"
+				echo "IMAGE_NAME: ${env.IMAGE_NAME}"
+				echo "IMAGE_TAG: ${env.IMAGE_TAG}"
+				echo "IMAGE_REGISTRY: ${env.IMAGE_REGISTRY}"
+				echo "IMAGE_REPO: ${env.IMAGE_REPO}"
+				echo "WEB_DEPLOY: ${env.WEB_DEPLOY}"
+			}
+		}
+
 		// Stage 1 - Install AWS CLI
         stage('Install AWS CLI') {
 			steps {
@@ -45,7 +67,7 @@ pipeline {
 		stage('Build & Push to ECR') {
 			steps {
 				script {
-					withAWS(region: "${AWS_REGION}", credentials: 'AWS') {
+					withAWS(region: "${env.AWS_REGION}", credentials: 'AWS') {
 						sh '''
 							echo "Logging into Amazon ECR..."
 							aws ecr get-login-password --region ${AWS_REGION} | \
@@ -70,7 +92,7 @@ pipeline {
             steps {
 				script {
 				// Install AWS Steps plugin to make this work
-				withAWS(region: "${AWS_REGION}", credentials: 'AWS') {
+				withAWS(region: "${env.AWS_REGION}", credentials: 'AWS') {
 						try {
 							sh '''
 								cd deploy
@@ -106,8 +128,7 @@ pipeline {
 								kubectl get pods
 							'''
 						} catch (exception) {
-							echo "❌ Failed to deploy web application on EKS cluster: ${exception}"
-							error("Halting pipeline due to web application deployment failure.")
+							error("Deployment failed: ${e}")
 						}
 					}
                 }
@@ -119,6 +140,12 @@ pipeline {
 	post {
         always {
             cleanWs()
+        }
+		success {
+            echo 'Pipeline completed successfully.'
+        }
+        failure {
+            echo 'Pipeline failed.'
         }
     }
 }
