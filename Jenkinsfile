@@ -91,6 +91,8 @@ pipeline {
 				withAWS(region: "${env.AWS_REGION}", credentials: 'AWS') {
 						try {
 							sh '''
+								aws eks update-kubeconfig --name ${CLUSTER_NAME} --region ${AWS_REGION} --role-arn ${ROLE_ARN}
+								
 								echo "Waiting for EXTERNAL-IP of 'events-api-svc'..."
 
 								for i in $(seq 1 60); do
@@ -114,7 +116,6 @@ pipeline {
 								sed "s|\\${IMAGE_NAME}|${IMAGE_REPO}|g" ${WEB_DEPLOY}.yaml | \
   								sed "s|\\${IMAGE_TAG}|${IMAGE_TAG}|g" | \
 								sed "s|\\${API_LB_URL}|${EXTERNAL_IP}|g" > ${WEB_DEPLOY}-rendered.yaml
-								aws eks update-kubeconfig --name ${CLUSTER_NAME} --region ${AWS_REGION} --role-arn ${ROLE_ARN}
 								kubectl apply -f web-service.yaml
 								kubectl apply -f ${WEB_DEPLOY}-rendered.yaml
 								
