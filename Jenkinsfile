@@ -4,7 +4,7 @@ pipeline {
 	// Set the environment variables
     environment {
         PATH = "${env.HOME}/bin:${env.PATH}"
-		env.IMAGE_REPO = "${env.IMAGE_REGISTRY}/${env.IMAGE_NAME}"
+		IMAGE_REPO = "${env.IMAGE_REGISTRY}/${env.IMAGE_NAME}"
 	}
 
 	// Multistage pipeline
