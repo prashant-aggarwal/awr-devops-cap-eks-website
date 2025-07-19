@@ -5,7 +5,7 @@ metadata:
   labels:
     app: events-web
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: events-web
@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: events-web
-          image: 021668988309.dkr.ecr.us-east-1.amazonaws.com/events-website:2.0
+          image: ${IMAGE_NAME}:${IMAGE_TAG}
           ports:
             - containerPort: 8080
           env:
